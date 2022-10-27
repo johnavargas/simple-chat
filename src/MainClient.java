@@ -1,3 +1,5 @@
+import modelo.Despachador;
+
 import java.net.*;
 import java.io.*;
 
@@ -8,25 +10,12 @@ public class MainClient {
 
         try {
             Socket kkSocket = new Socket(hostName, portNumber);
-            PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(kkSocket.getInputStream()));
 
-            BufferedReader stdIn =
-                    new BufferedReader(new InputStreamReader(System.in));
+            Despachador lector = new Despachador(kkSocket, "lector");
+            lector.start();
 
-            String fromServer;
-            while ((fromServer = in.readLine()) != null) {
-                System.out.println("Server: " + fromServer);
-                if (fromServer.equals("Bye."))
-                    break;
-
-                String fromUser = stdIn.readLine();
-                if (fromUser != null) {
-                    System.out.println("Client: " + fromUser);
-                    out.println(fromUser);
-                }
-            }
+            Despachador escritor = new Despachador(kkSocket, "escritor");
+            escritor.start();
 
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());

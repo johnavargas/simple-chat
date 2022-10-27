@@ -1,3 +1,5 @@
+import modelo.Despachador;
+
 import java.net.*;
 import java.io.*;
 
@@ -9,20 +11,14 @@ public class MainServer {
                 ServerSocket serverSocket = new ServerSocket(portNumber);
                 while (true) {
                     Socket clientSocket = serverSocket.accept();
-                    PrintWriter out =
-                            new PrintWriter(clientSocket.getOutputStream(), true);
-                    BufferedReader in = new BufferedReader(
-                            new  InputStreamReader(clientSocket.getInputStream()));
 
-                    out.println("Bienvenido");
+                    Despachador lector = new Despachador(clientSocket, "lector");
+                    lector.start();
 
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        System.out.println(inputLine);
-                        if (inputLine.equals("Bye."))
-                            break;
-                    }
-                    clientSocket.close();
+                    Despachador escritor = new Despachador(clientSocket, "escritor");
+                    escritor.start();
+
+                    //clientSocket.close();
                 }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
