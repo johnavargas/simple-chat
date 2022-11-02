@@ -1,5 +1,7 @@
 package modelo;
 
+import gui.Ventana;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,6 +13,7 @@ public class Despachador extends Thread {
     private BufferedReader in;
     private String tipo = "lector";
     private Socket socket;
+    public Ventana gui = null;
 
     public Despachador(Socket socket, String tipo) {
         try {
@@ -40,6 +43,11 @@ public class Despachador extends Thread {
         String inputLine;
         while ((inputLine = in.readLine()) != null) {
             System.out.println("Recibido: " + inputLine);
+
+            if (gui != null) {
+                gui.salida.append(inputLine + "\n");
+            }
+
             if (inputLine.equals("Bye.")) {
                 out.println(inputLine);
                 socket.close();
@@ -65,6 +73,17 @@ public class Despachador extends Thread {
             }
 
             inputLine = stdIn.readLine();
+        }
+    }
+
+    public void send()
+    {
+        try {
+            String inputLine = gui.entrada.getText();
+            System.out.println("Enviando: " + inputLine);
+            out.println(inputLine);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }
