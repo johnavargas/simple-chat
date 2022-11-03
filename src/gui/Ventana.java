@@ -31,7 +31,13 @@ public class Ventana extends JFrame {
         panel.add(usuarios);
 
         btnEnviar.addActionListener(actionEvent -> {
-            despachador.send();
+            despachador.send("msg:"+entrada.getText());
+            entrada.setText("");
         });
+    }
+
+    public void conectar(){
+        String user = JOptionPane.showInputDialog(this, "Nickname: ");
+        despachador.send("login:"+user);
     }
 }

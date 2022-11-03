@@ -24,6 +24,7 @@ public class MainClient {
             gui.despachador = escritor;
             escritor.start();
 
+            gui.conectar();
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }

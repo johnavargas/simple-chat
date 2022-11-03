@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Despachador extends Thread {
     private PrintWriter out;
@@ -14,6 +15,8 @@ public class Despachador extends Thread {
     private String tipo = "lector";
     private Socket socket;
     public Ventana gui = null;
+    public ArrayList<Despachador> escritores;
+    private String nickname;
 
     public Despachador(Socket socket, String tipo) {
         try {
@@ -44,15 +47,33 @@ public class Despachador extends Thread {
         while ((inputLine = in.readLine()) != null) {
             System.out.println("Recibido: " + inputLine);
 
-            if (gui != null) {
-                gui.salida.append(inputLine + "\n");
+            String[] datos = inputLine.split(":");
+
+            if (gui != null) {  // Cliente
+                if (datos[0].equals("login")) {
+                    gui.usuarios.setText(datos[1].replaceAll(",", "\n"));
+                } else if (datos[0].equals("msg")) {
+                    gui.salida.append(datos[1] + "\n");
+                }
             }
 
-            if (inputLine.equals("Bye.")) {
-                out.println(inputLine);
-                socket.close();
-                System.out.println("Cerrando conexion ");
-                break;
+            if (gui == null) {  // Servidor
+                if (datos[0].equals("login")) {
+                    escritores.get(escritores.size()-1).nickname = datos[1];
+                    String listaNickNames = "";
+
+                    for (Despachador e: escritores) {
+                        listaNickNames += e.nickname + ",";
+                    }
+
+                    for (Despachador e: escritores) {
+                        e.send("login:"+listaNickNames);
+                    }
+                } else if (datos[0].equals("msg")) {
+                    for (Despachador e: escritores) {
+                        e.send(inputLine);
+                    }
+                }
             }
         }
     }
@@ -76,10 +97,9 @@ public class Despachador extends Thread {
         }
     }
 
-    public void send()
+    public void send(String inputLine)
     {
         try {
-            String inputLine = gui.entrada.getText();
             System.out.println("Enviando: " + inputLine);
             out.println(inputLine);
         } catch (Exception e) {
